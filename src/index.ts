@@ -1,6 +1,7 @@
-import { TextChannel, Client, IntentsBitField } from 'discord.js';
+import {Client, IntentsBitField } from 'discord.js';
 import {fetchHTML} from './fetcher';
 import { Menu, parseHTMLFromMensaSite } from './parser';
+import { runAtSpecificTimeOfDay } from './time';
 import 'dotenv/config';
 
 
@@ -12,12 +13,20 @@ const client = new Client({
     ]
 });
 
+let interval: NodeJS.Timeout;
+
 client.on('ready', (c: Client) => {
-    fetchHTML()
-        .then(parseHTMLFromMensaSite)
-        .then(formatMessage)
-        .then(sendMessage)
-        .catch(err => console.log(err));
+    if (interval === undefined) {
+        interval = runAtSpecificTimeOfDay(Number(process.env.HOUR), Number(process.env.MINUTE), () => {
+            fetchHTML()
+            .then(parseHTMLFromMensaSite)
+            .then(formatMessage)
+            .then(sendMessage)
+            .catch(err => console.log(err));
+        }, (newInterval) => {
+            interval = newInterval;
+        });
+    }
 });
 
 client.login(process.env.TOKEN);
@@ -36,6 +45,7 @@ function formatMessage(menu: Menu): Promise<string> {
 
 function sendMessage(message: string): void {
     const mensaBotChannel = client.channels.cache.find((ch: any) => ch.name === process.env.CHANNEL_NAME);
-    if (mensaBotChannel !== undefined && mensaBotChannel.isTextBased())
+    if (mensaBotChannel !== undefined && mensaBotChannel.isTextBased()) {
         mensaBotChannel.send(String(message));
+    }
 }
