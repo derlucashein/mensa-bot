@@ -14,28 +14,21 @@ export function parseHTMLFromMensaSite(html: string): Promise<Menu> {
   return new Promise((resolve, reject) => {
     const parsedHTML = parse(html);
 
-    const currDataDay = parsedHTML
-      .querySelector("#thecurrentday")
-      ?.getAttribute("data-day");
+    const currDay = parsedHTML
+      .querySelector(".menu-entries header h3")
+      ?.innerHTML;
 
-    if (currDataDay === undefined)
-      reject("Error loading curr data day attribute");
+    if (currDay === undefined)
+      reject("Error loading curr day");
 
-    const currDayAll = parsedHTML.querySelectorAll(
-      `div[data-day="${currDataDay}"][class="day"] .menuwrap .menu`
-    );
+    const currMenu = parsedHTML.querySelectorAll(
+      ".day-menu.active .day-menu-entries article"
+    ); 
 
-    //filter evening dishes
-    const currDay = currDayAll.filter(
-      (dishElement: HTMLElement) =>
-        dishElement.querySelectorAll('div[title="Essen Abendmensa MeCampNo"]')
-          .length === 0
-    );
-
-    Promise.all(currDay.map((menuHTML: HTMLElement) => parseHTMLMenu(menuHTML)))
+    Promise.all(currMenu.map((dishHtml: HTMLElement) => parseHTMLMenu(dishHtml)))
       .then((dishes) =>
         resolve({
-          day: String(currDataDay),
+          day: String(currDay),
           dishes: dishes,
         })
       )
@@ -43,15 +36,15 @@ export function parseHTMLFromMensaSite(html: string): Promise<Menu> {
   });
 }
 
-export function parseHTMLMenu(menuHTML: HTMLElement): Promise<Dish> {
+export function parseHTMLMenu(dishHtml: HTMLElement): Promise<Dish> {
   return new Promise((resolve, reject) => {
-    const price: string | undefined = menuHTML
+    const price: string | undefined = dishHtml
       .querySelector(".price")
       ?.querySelector("span")?.innerHTML;
 
-    const name: string | undefined = menuHTML
-      .querySelector(".left")
-      ?.querySelector(".title")?.innerHTML;
+    const name: string | undefined = dishHtml
+      .querySelector("h5")
+      ?.innerHTML;
 
     if (price === undefined || name === undefined) {
       reject("Error parsing menu entry");
