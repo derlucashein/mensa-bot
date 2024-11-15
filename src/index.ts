@@ -44,7 +44,8 @@ function formatMessage(menu: Menu): Promise<string> {
     const { day, dishes } = menu;
     let message = `**Mensa Menü für ${day}:**`;
     dishes.forEach((dish) => {
-      const dishMsg = `${dish.name}: ${dish.price}€`;
+      const foodTypeMsg = dish.foodType ? ` (${dish.foodType})` : '';
+      const dishMsg = `${dish.name}: ${dish.price}€${foodTypeMsg}`;
       message = message.concat("\n- ", dishMsg);
     });
     resolve(message);

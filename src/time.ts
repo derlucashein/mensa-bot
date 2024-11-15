@@ -2,25 +2,25 @@ const twentyFourHours = 86400000;
 
 export function runAtSpecificTimeOfDay(
   hour: number,
-  minuts: number,
+  minutes: number,
   fun: () => void,
   updateInterval: (interval: NodeJS.Timeout) => void
 ): NodeJS.Timeout {
   console.log(hour);
-  console.log(minuts);
+  console.log(minutes);
   return setTimeout(() => {
     //first execution
     fun();
 
     //executions after
     updateInterval(setInterval(fun, twentyFourHours));
-  }, calcRemainingTimeForFirstExecution(new Date(), hour, minuts));
+  }, calcRemainingTimeForFirstExecution(new Date(), hour, minutes));
 }
 
 function calcRemainingTimeForFirstExecution(
   currentTime: Date,
   hour: number,
-  minuts: number
+  minutes: number
 ): number {
   let remainingTime =
     new Date(
@@ -28,7 +28,7 @@ function calcRemainingTimeForFirstExecution(
       currentTime.getMonth(),
       currentTime.getDate(),
       hour,
-      minuts,
+      minutes,
       0,
       0
     ).getTime() - currentTime.getTime();

@@ -3,6 +3,7 @@ import { HTMLElement, parse } from "node-html-parser";
 export type Dish = {
   name: string;
   price: string;
+  foodType?: string;
 };
 
 export type Menu = {
@@ -46,6 +47,8 @@ export function parseHTMLMenu(dishHtml: HTMLElement): Promise<Dish> {
       .querySelector("h5")
       ?.innerHTML;
 
+    const foodType: string | undefined = dishHtml.querySelector(".food-type .food-icon")?.getAttribute("title");
+
     if (price === undefined || name === undefined) {
       reject("Error parsing menu entry");
     }
@@ -53,6 +56,7 @@ export function parseHTMLMenu(dishHtml: HTMLElement): Promise<Dish> {
     const dish: Dish = {
       price: String(price),
       name: String(name),
+      foodType: foodType
     };
 
     resolve(dish);
